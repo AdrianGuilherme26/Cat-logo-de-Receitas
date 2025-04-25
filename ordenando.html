@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ordenando Valores</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            padding: 40px;
+        }
+
+        .container {
+            width: 300px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+
+        input, select, button {
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 10px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #02f05d;
+            color: black;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        button:hover {
+            background-color: #00bb48;
+        }
+
+        ul {
+            padding-left: 20px;
+        }
+
+        h2 {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Ordenando Valores</h2>
+        <input type="number" id="valor" placeholder="Digite um número">
+        <button onclick="add()">Adicionar</button>
+
+        <select id="algoritmo">
+            <option value="bubble" selected>Bubble Sort</option>
+            <option value="selection">Selection Sort</option>
+            <option value="quick">Quick Sort</option>
+        </select>
+
+        <button onclick="ordenar()">Ordenar</button>
+        <button onclick="misturar()">Misturar</button>
+
+        <ul id="valores"></ul>
+    </div>
+
+    <script>
+        // Algoritmos de ordenação
+        const swap = (vetor, i, j) => {
+            [vetor[i], vetor[j]] = [vetor[j], vetor[i]];
+        };
+
+        const shuffle = (vetor, trocas) => {
+            for (let i = 0; i < trocas; i++) {
+                let a = Math.floor(Math.random() * vetor.length);
+                let b = Math.floor(Math.random() * vetor.length);
+                swap(vetor, a, b);
+            }
+        };
+
+        const bubble_sort = vetor => {
+            for (let i = 0; i < vetor.length - 1; i++) {
+                for (let j = 0; j < vetor.length - i - 1; j++) {
+                    if (vetor[j] > vetor[j + 1]) {
+                        swap(vetor, j, j + 1);
+                    }
+                }
+            }
+        };
+
+        const selection_sort = vetor => {
+            for (let i = 0; i < vetor.length - 1; i++) {
+                let min = i;
+                for (let j = i + 1; j < vetor.length; j++) {
+                    if (vetor[j] < vetor[min]) {
+                        min = j;
+                    }
+                }
+                if (i !== min) swap(vetor, i, min);
+            }
+        };
+
+        const particionamento = (vetor, inicio, fim, pivot) => {
+            let i = inicio;
+            let j = fim;
+            while (i <= j) {
+                while (vetor[i] < pivot) i++;
+                while (vetor[j] > pivot) j--;
+                if (i <= j) {
+                    swap(vetor, i, j);
+                    i++;
+                    j--;
+                }
+            }
+            return i;
+        };
+
+        const quick_sort = (vetor, inicio, fim) => {
+            if (inicio >= fim) return;
+            const meio = Math.floor((inicio + fim) / 2);
+            const pivot = vetor[meio];
+            const index = particionamento(vetor, inicio, fim, pivot);
+            quick_sort(vetor, inicio, index - 1);
+            quick_sort(vetor, index, fim);
+        };
+
+        // Funções da interface
+        function add() {
+            let input = document.getElementById("valor");
+            let lista = document.getElementById("valores");
+            let node = document.createElement("li");
+            let texto = document.createTextNode(input.value);
+            node.appendChild(texto);
+            lista.appendChild(node);
+            input.value = "";
+        }
+
+        function ordenar() {
+            let lista = document.getElementById("valores");
+            let seletor = document.getElementById("algoritmo");
+
+            let vetor = [];
+            for (let item of lista.children) {
+                let numero = eval(item.innerHTML);
+                vetor.push(numero);
+            }
+
+            let tipo = seletor.selectedIndex;
+            if (tipo === 0) {
+                bubble_sort(vetor);
+            } else if (tipo === 1) {
+                selection_sort(vetor);
+            } else if (tipo === 2) {
+                quick_sort(vetor, 0, vetor.length - 1);
+            }
+
+            let novoHTML = vetor.map(valor => `<li>${valor}</li>`).reduce((a, b) => a + b);
+            lista.innerHTML = novoHTML;
+        }
+
+        function misturar() {
+            let lista = document.getElementById("valores");
+            let vetor = [];
+            for (let item of lista.children) {
+                let numero = eval(item.innerHTML);
+                vetor.push(numero);
+            }
+
+            shuffle(vetor, 10);
+
+            let novoHTML = vetor.map(valor => `<li>${valor}</li>`).reduce((a, b) => a + b);
+            lista.innerHTML = novoHTML;
+        }
+    </script>
+</body>
+</html>
